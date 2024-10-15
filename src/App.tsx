@@ -112,7 +112,7 @@ const App: React.FC = () => {
                         <li key={doc.id}>
                             {doc.content.substring(0, 30)}...
                             <button onClick={() => handleSelectDocument(doc.id)}>Edit</button>
-                            <button onClick={() => handleDelete(doc.id)} style={{ marginLeft: '10px' }}>Delete</button>
+                            {/*<button onClick={() => handleDelete(doc.id)} style={{ marginLeft: '10px' }}>Delete</button>*/}
 
                         </li>
                     ))}
