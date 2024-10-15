@@ -7,10 +7,11 @@ const App: React.FC = () => {
     const [selectedDocument, setSelectedDocument] = useState<number | null>(null);
     const [content, setContent] = useState<string>('');
     const [infoText, setInfoText] = useState<string>('Loading');
-    const [useRichText, setUseRichText] = useState<boolean>(true);
+    const [useRichText, setUseRichText] = useState<boolean>(false);
     const [fetchUrl, setFetchUrl] = useState<string>('http://localhost:8000/api/document/');
     const [saveUrl, setSaveUrl] = useState<string>('http://localhost:8000/api/document/save/');
     const [listUrl, setListUrl] = useState<string>('http://localhost:8000/api/document/list/');
+    const [deleteUrl, setDeleteUrl] = useState<string>('http://localhost:8000/api/document/delete/');
 
     useEffect(() => {
         fetchDocuments();
@@ -73,6 +74,28 @@ const App: React.FC = () => {
         }
     };
 
+    const handleDelete = async (id: number) => {
+        const confirmDelete = window.confirm("Are you sure you want to delete this document?");
+        if (!confirmDelete) return;
+
+        try {
+            const response = await fetch(`${deleteUrl}${id}/`, {
+                method: 'DELETE',
+            });
+
+            if (!response.ok) {
+                throw new Error('Error deleting document');
+            }
+
+            setDocuments((prevDocuments) => prevDocuments.filter((doc) => doc.id !== id));
+            setInfoText('Document deleted successfully');
+        } catch (error) {
+            console.error('Error:', error);
+            setInfoText('Error deleting document: ' + error);
+        }
+    };
+
+
     const handleNewDocument = () => {
         setSelectedDocument(null);
         setContent('');
@@ -82,40 +105,6 @@ const App: React.FC = () => {
         <div style={{ padding: '20px' }}>
             <h2>Simple Editor</h2>
 
-            <div style={{ marginBottom: '20px' }}>
-                <h3>URLs Configuration</h3>
-                <label>
-                    Fetch Document URL:
-                    <input
-                        readOnly
-                        type="text"
-                        value={fetchUrl}
-                        onChange={(e) => setFetchUrl(e.target.value)}
-                        style={{ width: '100%', marginBottom: '10px' }}
-                    />
-                </label>
-                <label>
-                    Save Document URL:
-                    <input
-                        readOnly
-                        type="text"
-                        value={saveUrl}
-                        onChange={(e) => setSaveUrl(e.target.value)}
-                        style={{ width: '100%', marginBottom: '10px' }}
-                    />
-                </label>
-                <label>
-                    List Documents URL:
-                    <input
-                        readOnly
-                        type="text"
-                        value={listUrl}
-                        onChange={(e) => setListUrl(e.target.value)}
-                        style={{ width: '100%', marginBottom: '20px' }}
-                    />
-                </label>
-            </div>
-
             <div>
                 <h3>History</h3>
                 <ul>
@@ -123,6 +112,8 @@ const App: React.FC = () => {
                         <li key={doc.id}>
                             {doc.content.substring(0, 30)}...
                             <button onClick={() => handleSelectDocument(doc.id)}>Edit</button>
+                            <button onClick={() => handleDelete(doc.id)} style={{ marginLeft: '10px' }}>Delete</button>
+
                         </li>
                     ))}
                 </ul>
